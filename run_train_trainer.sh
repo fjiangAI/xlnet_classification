@@ -1,0 +1,17 @@
+CUDA_VISIBLE_DEVICES=0 python3 train_trainer.py \
+  --model_type=xlnet \
+  --task_name=relation \
+  --model_name=./chinese_xlnet_base_pytorch \
+  --data_dir=./data/ \
+  --per_gpu_train_batch_size=2 \
+  --per_gpu_eval_batch_size=2 \
+  --learning_rate=1e-5 \
+  --num_train_epochs=5.0 \
+  --logging_steps=5 \
+  --predict_all_checkpoints \
+  --evaluate \
+  --logging_dir="./logs/" \
+  --save_steps=5 \
+  --output_dir=./outputs/relation_output/ \
+  --overwrite_output_dir \
+  --seed=42
