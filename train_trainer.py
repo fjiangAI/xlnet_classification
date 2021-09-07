@@ -169,7 +169,7 @@ def load_model_and_tokenizer(root):
     :return:
     """
     tokenizer = XLNetTokenizer.from_pretrained(root)
-    model = XLNetForSequenceClassification.from_pretrained(root, return_dict=True)
+    model = XLNetForSequenceClassification.from_pretrained(root, return_dict=True, num_labels=5)
     return model, tokenizer
 
 
