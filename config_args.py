@@ -77,6 +77,8 @@ def deal_parser():
 
     parser.add_argument('--logging_steps', type=int, default=10,
                         help="Log every X updates steps.")
+    parser.add_argument('--save_strategy', type=str, default="epoch",
+                        help="Save strategy, it can be epoch or steps.")
     parser.add_argument('--save_steps', type=int, default=1000,
                         help="Save checkpoint every X updates steps.")
     parser.add_argument("--eval_all_checkpoints", action='store_true',
@@ -150,6 +152,7 @@ def set_args_again(args):
         weight_decay=0.01,
         logging_dir=args.logging_dir,
         logging_steps=args.logging_steps,
+        save_strategy=args.save_strategy,
         save_steps=args.save_steps,
         learning_rate=args.learning_rate,
     )

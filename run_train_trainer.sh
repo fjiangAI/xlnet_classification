@@ -11,7 +11,6 @@ CUDA_VISIBLE_DEVICES=0 python3 train_trainer.py \
   --predict_all_checkpoints \
   --evaluate \
   --logging_dir="./logs/" \
-  --save_steps=5 \
   --output_dir=./outputs/relation_output/ \
   --overwrite_output_dir \
   --seed=42
