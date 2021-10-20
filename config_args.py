@@ -113,7 +113,6 @@ def set_args_again(args):
     :param args: the original args.
     :return: args, training_args
     """
-    os.mkdir("./outputs/")
     if not os.path.exists(args.output_dir):
         os.mkdir(args.output_dir)
     args.output_dir = args.output_dir + '{}'.format(args.model_type)
