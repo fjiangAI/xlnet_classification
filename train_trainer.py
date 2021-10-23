@@ -29,7 +29,7 @@ from callback.progressbar import ProgressBar
 import glob
 
 from transformers import Trainer, XLNetTokenizer, \
-    XLNetForSequenceClassification
+    XLNetForSequenceClassification, AutoTokenizer
 
 from config_args import deal_parser, set_args_again
 from custom_dataset import get_dataset
@@ -61,6 +61,7 @@ class ExperimentTrainer:
             args=self.training_args,
             train_dataset=self.dataset["train_dataset"],
             eval_dataset=self.dataset["val_dataset"],
+
         )
         self.trainer.train()
 
@@ -84,17 +85,19 @@ class ExperimentTrainer:
     def test(self, args):
         results = []
         checkpoints = self._get_checkpoints(args)
+        count = 0
         for _, checkpoint in checkpoints:
             global_step = checkpoint.split('-')[-1] if len(checkpoints) > 1 else ""
             prefix = checkpoint.split('/')[-1] if checkpoint.find('checkpoint') != -1 else ""
             model = XLNetForSequenceClassification.from_pretrained(checkpoint)
             model.to(args.device)
-            result = self._test(args, model, prefix=prefix)
+            result = self._test(args, model, prefix=str(count))
             results.extend([(k + '_{}'.format(global_step), v) for k, v in result.items()])
-        output_test_file = os.path.join(args.output_dir, "checkpoint_test_results.txt")
-        with open(output_test_file, "w") as writer:
-            for key, value in results:
-                writer.write("%s = %s\n" % (key, str(value)))
+            output_test_file = os.path.join(args.output_dir, "checkpoint_test_results" + str(count) + ".txt")
+            with open(output_test_file, "w") as writer:
+                for key, value in results:
+                    writer.write("%s = %s\n" % (key, str(value)))
+            count = count + 1
 
     def _save_result(self, model_type, preds, out_label_ids):
         """
@@ -155,9 +158,9 @@ class ExperimentTrainer:
             print(' ')
             if 'cuda' in str(args.device):
                 torch.cuda.empty_cache()
-            self._save_result(args.model_type, preds, out_label_ids)
+            self._save_result(args.model_type + str(prefix), preds, out_label_ids)
             preds = np.argmax(preds, axis=1)
-            result = acc_and_f1(preds, out_label_ids, average="micro")
+            result = acc_and_f1(preds, out_label_ids, average="macro")
             results.update(result)
         return results
 
@@ -168,7 +171,7 @@ def load_model_and_tokenizer(root):
     :param root:
     :return:
     """
-    tokenizer = XLNetTokenizer.from_pretrained(root)
+    tokenizer = AutoTokenizer.from_pretrained(root)
     model = XLNetForSequenceClassification.from_pretrained(root, return_dict=True, num_labels=5)
     return model, tokenizer
 
