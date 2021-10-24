@@ -28,8 +28,7 @@ from torch.utils.data import DataLoader
 from callback.progressbar import ProgressBar
 import glob
 
-from transformers import Trainer, XLNetTokenizer, \
-    XLNetForSequenceClassification, AutoTokenizer
+from transformers import Trainer, AutoTokenizer, AutoModelForSequenceClassification
 
 from config_args import deal_parser, set_args_again
 from custom_dataset import get_dataset
@@ -89,7 +88,7 @@ class ExperimentTrainer:
         for _, checkpoint in checkpoints:
             global_step = checkpoint.split('-')[-1] if len(checkpoints) > 1 else ""
             prefix = checkpoint.split('/')[-1] if checkpoint.find('checkpoint') != -1 else ""
-            model = XLNetForSequenceClassification.from_pretrained(checkpoint)
+            model = AutoModelForSequenceClassification.from_pretrained(checkpoint)
             model.to(args.device)
             result = self._test(args, model, prefix=str(count))
             results.extend([(k + '_{}'.format(global_step), v) for k, v in result.items()])
@@ -165,14 +164,15 @@ class ExperimentTrainer:
         return results
 
 
-def load_model_and_tokenizer(root):
+def load_model_and_tokenizer(root, num_labels=5):
     """
     load model
     :param root:
+    :param num_labels:
     :return:
     """
     tokenizer = AutoTokenizer.from_pretrained(root)
-    model = XLNetForSequenceClassification.from_pretrained(root, return_dict=True, num_labels=5)
+    model = AutoModelForSequenceClassification.from_pretrained(root, return_dict=True, num_labels=num_labels)
     return model, tokenizer
 
 
@@ -197,7 +197,7 @@ def main():
     seed_everything(args.seed)
     # 4. load trainer,model,tokenizer and dataset.
     experiment_trainer = ExperimentTrainer(training_args)
-    model, tokenizer = load_model_and_tokenizer(args.model_name)
+    model, tokenizer = load_model_and_tokenizer(args.model_name, num_labels=args.num_labels)
     train_dataset, val_dataset, test_dataset = get_dataset(tokenizer, dataset_root=args.data_dir)
     experiment_trainer.set_dataset(train_dataset=train_dataset, eval_dataset=val_dataset, test_dataset=test_dataset)
     # 5. train and test

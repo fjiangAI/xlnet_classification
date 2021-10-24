@@ -7,6 +7,7 @@ CUDA_VISIBLE_DEVICES=0 python3 train_trainer.py \
   --per_gpu_eval_batch_size=2 \
   --learning_rate=1e-5 \
   --num_train_epochs=5.0 \
+  --num_labels=5 \
   --logging_steps=5 \
   --predict_all_checkpoints \
   --evaluate \
